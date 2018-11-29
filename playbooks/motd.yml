@@ -1,0 +1,20 @@
+---
+# motd.yml
+# configure /etc/motd using Ansible Jinja2 templating
+- name: configure /etc/motd
+  hosts: my_hosts
+  remote_user: lnxcfg
+  become: true
+  become_method: sudo
+  become_user: root
+  vars:
+    templateSource: '/home/lnxcfg/templates/motd.j2'
+ 
+  tasks:
+        - name:  set motd
+          template:
+            src: "{{ templateSource }}"
+            dest: /etc/motd
+            owner: root
+            group: root
+            mode: 0644

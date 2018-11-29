@@ -1,0 +1,35 @@
+---
+# configChronydWithTemplate.yml
+# configure chronyd with nist time source. Uses Ansible Jinja2
+# templating to create /etc/chrony.conf
+- name: configure chronyd with a template
+  hosts: my_hosts
+  remote_user: lnxcfg
+  become: true
+  become_method: sudo
+  become_user: root
+  
+  vars:
+    chronySource:   ['time-a-g.nist.gov',
+                      'time-b-g.nist.gov',
+                      'time-c-g.nist.gov']
+    templateSource: '/home/lnxcfg/templates/chrony.j2'
+  tasks:
+        - name:  install chronyd
+          yum:
+            name: chrony
+            state: present
+        - name:  chronyd template
+          template:
+            src: "{{ templateSource }}" 
+            dest: /etc/chrony.conf
+            owner: root
+            group: root
+            mode: 0644
+          notify: restart chronyd
+  handlers:
+        - name: restart chronyd
+          service:
+                name: chronyd
+                enabled: yes
+                state: restarted
